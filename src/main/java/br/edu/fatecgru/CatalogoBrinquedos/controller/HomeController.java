@@ -1,4 +1,4 @@
-package br.edu.fatecgru.CatalogoBrinquedos;
+package br.edu.fatecgru.CatalogoBrinquedos.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
