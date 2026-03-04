@@ -10,30 +10,33 @@ import org.springframework.web.bind.annotation.PostMapping;
 import br.edu.fatecgru.CatalogoBrinquedos.dto.BrinquedoRequestDTO;
 import br.edu.fatecgru.CatalogoBrinquedos.service.BrinquedoService;
 
-@Controller // Avisa o Spring que essa classe controla as telas e URLs
+@Controller // Indica ao Spring que esta classe gerencia as telas e URLs
 public class HomeController {
 
-    @Autowired
-    private BrinquedoService service; // Injetamos o nosso "Gerente" aqui!
+    @Autowired // O Spring injeta automaticamente o nosso Service (regras de negócio) aqui *Injeção de dependência
+    private BrinquedoService service; 
 
-    // 1. ROTA GET: O que acontece quando o usuário digita "localhost:8080/"
+    // ROTA GET: Acionada ao acessar "localhost:8080/". Prepara e carrega a tela.
     @GetMapping("/")
     public String abrirTelaInicial(Model model) {
-        // Criamos uma "caixa vazia" e mandamos para a tela pro usuário preencher
+        
+        // 1. Envia o DTO vazio para o formulário HTML preencher os dados
         model.addAttribute("novoBrinquedo", new BrinquedoRequestDTO());
         
-        // Futuramente, é aqui que vamos buscar a lista do banco para montar a tabela!
+        // 2. Busca a lista de brinquedos no Service e envia para a tabela
+        model.addAttribute("brinquedos", service.listarTodos());
         
-        return "index"; // Renderiza o arquivo index.html. Ele busca o arquivo index da pasta templates
+        return "index"; // Renderiza o arquivo "index.html" da pasta templates
     }
 
-    // 2. ROTA POST: O que acontece quando o usuário clica no botão "Salvar" no HTML
+    // ROTA POST: Acionada quando o usuário clica em "Salvar" no formulário
     @PostMapping("/salvar")
     public String salvarBrinquedo(@ModelAttribute BrinquedoRequestDTO request) {
-        // O Controller não pensa, ele só passa a caixa pro Service trabalhar!
+        
+        // O @ModelAttribute empacota os dados da tela. Repassamos para o Service salvar no banco.
         service.salvarBrinquedo(request);
         
-        // Redireciona de volta para a tela inicial para limpar o formulário
+        // Redireciona para a rota "/" para recarregar a página e atualizar a tabela
         return "redirect:/";
     }
 }

@@ -4,7 +4,11 @@ public class BrinquedoRequestDTO {
     
     private String nome;
     private Double preco;
-
+    private String categoria;
+    private String caminhoImagem;
+    private double desconto;
+    
+    
     public BrinquedoRequestDTO() {
     }
 
@@ -23,4 +27,29 @@ public class BrinquedoRequestDTO {
     public void setPreco(Double preco) {
         this.preco = preco;
     }
+
+	public String getCategoria() {
+		return categoria;
+	}
+
+	public void setCategoria(String categoria) {
+		this.categoria = categoria;
+	}
+
+	public String getCaminhoImagem() {
+		return caminhoImagem;
+	}
+
+	public void setCaminhoImagem(String caminhoImagem) {
+		this.caminhoImagem = caminhoImagem;
+	}
+
+	public double getDesconto() {
+		return desconto;
+	}
+
+	public void setDesconto(double desconto) {
+		this.desconto = desconto;
+	}
+    
 }
