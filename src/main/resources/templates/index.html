@@ -1,24 +1,51 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html xmlns:th="http://www.thymeleaf.org"> <!--Aqui diz que o html não é comum e que ele contem funções de java (thymeleaf-->
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Catálogo de Brinquedos</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body class="bg-light">
 
-    <nav class="navbar navbar-dark bg-primary mb-4">
-        <div class="container">
-            <a class="navbar-brand" href="#">🧸 Loja de Brinquedos do Grupo</a>
-        </div>
-    </nav>
+    <div class="container mt-5" style="max-width: 800px;">
+        <h1 class="text-center mb-4">🧸 Catálogo de Brinquedos</h1>
 
-    <div class="container">
-        <div class="card p-5 text-center shadow-sm">
-            <h1 class="text-primary">Nosso Catálogo está online!</h1>
-            <p class="lead">O Spring Boot está renderizando o Bootstrap com sucesso.</p>
-            <button class="btn btn-success btn-lg mt-3">Ver Brinquedos</button>
+        <div class="card shadow-sm mb-5">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Cadastrar Novo Brinquedo</h5>
+            </div>
+            <div class="card-body">
+                
+                <form th:action="@{/salvar}" th:object="${novoBrinquedo}" method="post"> <!--Aqui ele pega a caixa vazia do BrinquedoRequestDTO 
+					enviada pelo controller-->
+                    
+                    <div class="mb-3">
+                        <label for="nome" class="form-label">Nome do Brinquedo</label>
+                        <input type="text" id="nome" th:field="*{nome}" class="form-control" placeholder="Ex: Quebra-cabeça 1000 peças" required>
+                    <!--Aqui foi como após o usuário clicar em salvar, o thymeleaf empacota os dados nas variáveis certas-->
+					</div>
+                    
+                    <div class="mb-3">
+                        <label for="preco" class="form-label">Preço (R$)</label>
+                        <input type="number" id="preco" step="0.01" th:field="*{preco}" class="form-control" placeholder="Ex: 49.90" required>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-success w-100 fw-bold">Salvar no Banco de Dados</button>
+                </form>
+
+            </div>
         </div>
+
+        <div class="card shadow-sm">
+            <div class="card-header bg-dark text-white">
+                <h5 class="mb-0">Estoque Atual</h5>
+            </div>
+            <div class="card-body text-center p-5">
+                <p class="text-muted mb-0">A tabela listando os brinquedos salvos aparecerá aqui na nossa próxima etapa!</p>
+            </div>
+        </div>
+
     </div>
 
 </body>
