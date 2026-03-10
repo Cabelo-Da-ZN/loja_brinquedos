@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import br.edu.fatecgru.CatalogoBrinquedos.dto.BrinquedoRequestDTO;
 import br.edu.fatecgru.CatalogoBrinquedos.dto.BrinquedoResponseDTO;
 import br.edu.fatecgru.CatalogoBrinquedos.service.BrinquedoService;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/brinquedos")
@@ -31,7 +32,7 @@ public class BrinquedoApiController {
 
     // 3. CRIAR NOVO (POST)
     @PostMapping  
-    public ResponseEntity<BrinquedoResponseDTO> criar(@RequestBody BrinquedoRequestDTO request) { 	
+    public ResponseEntity<BrinquedoResponseDTO> criar(@Valid @RequestBody BrinquedoRequestDTO request) { 	
         BrinquedoResponseDTO response = service.salvarBrinquedo(request);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }

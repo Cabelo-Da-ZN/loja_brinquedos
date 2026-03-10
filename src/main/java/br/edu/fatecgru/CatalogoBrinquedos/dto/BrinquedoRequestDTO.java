@@ -15,12 +15,14 @@ public class BrinquedoRequestDTO {
     private Double preco;
 	@NotBlank(message = "A categoria é obrigatória.")
     private String categoria;
+	@NotBlank(message = "O caminho da imagem é obrigatório")
     private String caminhoImagem;
     @Min(value = 0, message = "O desconto não pode ser negativo.")
     private Double desconto;
     @NotNull(message = "A quantidade em estoque é obrigatória.")
     @Min(value = 0, message = "A quantidade não pode ser negativa.")
     private Integer quantidade;
+    @NotBlank(message = "A descrição não pode estar vazia")
     private String descricao;
     
     public BrinquedoRequestDTO() {

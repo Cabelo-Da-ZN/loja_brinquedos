@@ -4,6 +4,9 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 
 @Entity // Avisa o banco que isso vai virar uma tabela
 public class Brinquedo {
@@ -12,13 +15,21 @@ public class Brinquedo {
     @GeneratedValue(strategy = GenerationType.IDENTITY) // Avisa para o banco gerar os números sozinho (1, 2, 3...)
     private Long id;
     
+    @NotBlank(message = "O nome é obrigatório")
     private String nome; // Campo para armazenar o nome do brinquedo
+    @NotNull(message = "O preço é obrigatório")
+    @Positive(message = "O preço deve ser maior que zero.")
     private Double preco; // Campo para armazenar o preço do brinquedo
+    @NotBlank(message = "A categoria é obrigatória")
     private String categoria; // Campo para armazenar a categoria do brinquedo (ex: "Ação", "Educativo", "Boneca", etc.)
+    @NotBlank(message = "O caminho da imagem é obrigatório")
     private String caminhoImagem; // Campo para armazenar o caminho da imagem do brinquedo (pode ser uma URL ou um caminho local)
     private Double desconto; // Campo para controlar o desconto aplicado ao brinquedo (em porcentagem, ex: 10.0 para 10% de desconto)
+    @NotNull(message = "A quantidade em estoque é obrigatória")
+    @Positive(message = "O estoque não pode ser negativo")
     private Integer quantidade; // Campo para controlar a quantidade disponível do brinquedo
     private Integer vendas; // Campo para controlar o número de vendas do brinquedo
+    @NotBlank(message = "A descrição não pode estar vazia")
     private String descricao; // Campo para armazenar uma descrição detalhada do brinquedo (opcional)
    
 	// Construtor vazio
