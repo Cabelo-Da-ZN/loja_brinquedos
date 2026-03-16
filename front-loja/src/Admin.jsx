@@ -41,7 +41,6 @@ function Admin({ voltarParaLoja, authData }) {
   useEffect(() => { listar(); }, []);
   useEffect(() => { if (modo !== 'listagem') carregarSugestoes(); }, [modo]);
 
-  // --- FUNÇÃO DE UPLOAD COM AUTENTICAÇÃO INTEGRADA ---
   const handleUploadImagem = async (e) => {
     const arquivo = e.target.files[0];
     if (!arquivo) return;
@@ -52,10 +51,9 @@ function Admin({ voltarParaLoja, authData }) {
     try {
       setUploading(true);
       const res = await axios.post(`${urlApi}/upload`, data, {
-        auth: authData, // Crucial para o Spring Security não barrar
+        auth: authData,
         headers: { 'Content-Type': 'multipart/form-data' }
       });
-      // Recebe o nome do arquivo (ex: 123456_foto.png) e guarda no estado
       setFormData({ ...formData, caminhoImagem: res.data });
       Swal.fire('Imagem Pronta!', 'Arquivo carregado com sucesso.', 'success');
     } catch (err) {
@@ -103,7 +101,6 @@ function Admin({ voltarParaLoja, authData }) {
 
   return (
     <div className="d-flex" style={{ minHeight: '100vh', backgroundColor: '#f4f7f6' }}>
-      {/* SIDEBAR */}
       <div className="bg-dark text-white p-4 shadow" style={{ width: '280px', position: 'fixed', height: '100vh' }}>
         <h4 className="fw-bold mb-4 border-bottom pb-2 text-center">ToyBox Admin</h4>
         <ul className="nav flex-column gap-2">
@@ -134,11 +131,19 @@ function Admin({ voltarParaLoja, authData }) {
             <div className="card shadow-sm border-0">
               <table className="table table-hover align-middle mb-0">
                 <thead className="table-light">
-                  <tr><th>Nome</th><th>Marca</th><th>Categoria</th><th>Valor</th><th className="text-center">Ações</th></tr>
+                  <tr><th>Foto</th><th>Nome</th><th>Marca</th><th>Categoria</th><th>Valor</th><th className="text-center">Ações</th></tr>
                 </thead>
                 <tbody>
                   {brinquedosFiltrados.map(b => (
                     <tr key={b.id}>
+                      <td>
+                        <img 
+                          src={b.caminhoImagem?.startsWith('http') ? b.caminhoImagem : `http://localhost:8080/imagens/${b.caminhoImagem}`} 
+                          alt="Thumb" 
+                          style={{width: '40px', height: '40px', objectFit: 'contain', borderRadius: '4px'}}
+                          onError={(e) => e.target.src = 'https://via.placeholder.com/40'}
+                        />
+                      </td>
                       <td><small className="text-muted">#{b.id}</small> {b.nome}</td>
                       <td>{b.marca}</td>
                       <td><span className="badge bg-secondary">{b.categoria}</span></td>
@@ -180,18 +185,38 @@ function Admin({ voltarParaLoja, authData }) {
                     <datalist id="cats">{categoriasExistentes.map((c, i) => <option key={i} value={c} />)}</datalist>
                   </div>
 
-                  {/* UPLOAD LOCAL */}
+                  {/* CAMPO HÍBRIDO DE IMAGEM */}
                   <div className="col-12">
-                    <label className="fw-bold small">FOTO (ARQUIVO LOCAL):</label>
-                    <input type="file" className="form-control mb-2" onChange={handleUploadImagem} accept="image/*" />
+                    <label className="fw-bold small">IMAGEM (ARQUIVO OU LINK):</label>
+                    
+                    {/* Opção 1: Upload */}
+                    <div className="input-group mb-2">
+                      <label className="input-group-text small" style={{cursor:'pointer'}}>
+                        📁 Upload <input type="file" hidden onChange={handleUploadImagem} accept="image/*" />
+                      </label>
+                      <input 
+                        type="text" 
+                        className="form-control" 
+                        placeholder="Ou cole o link da imagem aqui..."
+                        value={formData.caminhoImagem} 
+                        onChange={e => setFormData({...formData, caminhoImagem: e.target.value})} 
+                      />
+                    </div>
+
+                    {uploading && <p className="text-primary small">Enviando arquivo...</p>}
+
+                    {/* Preview Inteligente */}
                     {formData.caminhoImagem && (
-                      <div className="text-center border p-2 bg-white rounded">
+                      <div className="text-center border p-2 bg-white rounded shadow-sm">
                         <img 
-                          src={`http://localhost:8080/imagens/${formData.caminhoImagem}`} 
+                          src={formData.caminhoImagem.startsWith('http') 
+                            ? formData.caminhoImagem 
+                            : `http://localhost:8080/imagens/${formData.caminhoImagem}`} 
                           alt="Preview" 
-                          style={{ maxHeight: '120px' }} 
+                          style={{ maxHeight: '150px', maxWidth: '100%', objectFit: 'contain' }} 
+                          onError={(e) => e.target.src = 'https://via.placeholder.com/150?text=Imagem+Invalida'}
                         />
-                        <p className="text-muted small mt-1">{formData.caminhoImagem}</p>
+                        <p className="text-muted x-small mt-2 mb-0 text-truncate" style={{fontSize: '10px'}}>{formData.caminhoImagem}</p>
                       </div>
                     )}
                   </div>
