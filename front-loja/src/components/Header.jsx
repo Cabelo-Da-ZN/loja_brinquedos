@@ -1,31 +1,52 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 function Header({ onSearch, onFilter, carrinho = [], setPagina }) {
   const [filtroAtivo, setFiltroAtivo] = useState('TODOS');
   const [mostrarMegaMenu, setMostrarMegaMenu] = useState(false);
+  const [categoriasDoBanco, setCategoriasDoBanco] = useState([]);
+  
+  const navigate = useNavigate();
 
   const totalItens = carrinho.reduce((total, item) => total + item.quantidade, 0);
 
-  const handleFiltro = (categoria) => {
+  useEffect(() => {
+    const carregarCategorias = async () => {
+      try {
+        const res = await axios.get("http://localhost:8080/api/categorias");
+        setCategoriasDoBanco(res.data);
+      } catch (err) {
+        console.error("Erro ao carregar categorias", err);
+      }
+    };
+    carregarCategorias();
+  }, []);
+
+  // FUNÇÃO MESTRA: Filtra e garante que o usuário está na vitrine
+  const aplicarFiltro = (categoria) => {
     setFiltroAtivo(categoria);
-    onFilter(categoria);
-    setMostrarMegaMenu(false); // Fecha o menu após clicar
-    if (setPagina) setPagina("loja"); // Garante que volta para a loja se estiver em outra tela
+    onFilter(categoria); // Executa a lógica de filtro do App.jsx
+    setMostrarMegaMenu(false); 
+    if (setPagina) setPagina("loja");
+    navigate('/'); // Garante que volta para a vitrine se estiver em Detalhes/Admin
+    window.scrollTo(0, 0);
   };
 
   return (
     <header className="shadow-sm sticky-top bg-white" onMouseLeave={() => setMostrarMegaMenu(false)}>
-      {/* Faixa Superior */}
       <div className="text-white text-center py-1 fw-bold" style={{ backgroundColor: '#cc0066', fontSize: '12px' }}>
         FRETE GRÁTIS EM COMPRAS ACIMA DE R$ 199,90! 🚚
       </div>
 
       <div className="py-3" style={{ backgroundColor: '#ff007f' }}>
         <div className="container d-flex align-items-center justify-content-between gap-3">
+          {/* LOGO */}
           <div 
             className="text-white fw-bold fs-2" 
             style={{ fontFamily: 'cursive', cursor: 'pointer', userSelect: 'none' }} 
-            onDoubleClick={() => setPagina("admin")}
+            onClick={() => aplicarFiltro('TODOS')}
+            onDoubleClick={() => navigate("/admin")}
           >
             🌞 ToyBox
           </div>
@@ -44,12 +65,10 @@ function Header({ onSearch, onFilter, carrinho = [], setPagina }) {
 
           <div className="d-flex align-items-center text-white gap-4 fs-4">
              <span style={{ cursor: 'pointer' }}>👤</span>
-             {/* BOTÃO CARRINHO: Certifique-se que o ID coincida com a sua div de Offcanvas */}
              <div 
                 style={{ cursor: 'pointer', position: 'relative' }} 
                 data-bs-toggle="offcanvas" 
                 data-bs-target="#gavetaCarrinho"
-                aria-controls="gavetaCarrinho"
              >
                 🛒 {totalItens > 0 && (
                   <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style={{ fontSize: '10px' }}>
@@ -61,54 +80,54 @@ function Header({ onSearch, onFilter, carrinho = [], setPagina }) {
         </div>
       </div>
 
-      {/* MENU DE NAVEGAÇÃO */}
       <div className="bg-white border-bottom position-relative">
-        <div className="container d-flex gap-4 py-2 text-uppercase fw-bold" style={{ fontSize: '13px' }}>
+        <div className="container d-flex gap-4 py-2 text-uppercase fw-bold" style={{ fontSize: '12px' }}>
             
-            {/* GATILHO DO MEGA MENU */}
             <div 
-              style={{ cursor: 'pointer' }} 
+              className="px-2"
+              style={{ cursor: 'pointer', color: '#ff007f', borderRight: '1px solid #ddd' }} 
               onMouseEnter={() => setMostrarMegaMenu(true)}
             >
-              ☰ TODOS OS FILTROS
+              ☰ TODAS AS CATEGORIAS
             </div>
 
-            <span style={{ cursor: 'pointer', color: filtroAtivo === 'TODOS' ? '#ff007f' : '#6c757d' }} onClick={() => handleFiltro('TODOS')}>HOME</span>
-            <span style={{ cursor: 'pointer', color: filtroAtivo === 'Heróis' ? '#ff007f' : '#6c757d' }} onClick={() => handleFiltro('Heróis')}>HERÓIS</span>
-            <span style={{ cursor: 'pointer', color: filtroAtivo === 'Meninas' ? '#ff007f' : '#6c757d' }} onClick={() => handleFiltro('Meninas')}>MENINAS</span>
-            <span style={{ cursor: 'pointer', color: '#dc3545' }} onClick={() => handleFiltro('OFERTAS')}>OFERTAS %</span>
+            <span 
+              style={{ cursor: 'pointer', color: filtroAtivo === 'TODOS' ? '#ff007f' : '#6c757d' }} 
+              onClick={() => aplicarFiltro('TODOS')}
+            >
+              HOME
+            </span>
+            
+            {/* FILTROS RÁPIDOS (Agora usam aplicarFiltro para funcionar como as categorias) */}
+            <span style={{ cursor: 'pointer', color: filtroAtivo === 'LEGO' ? '#ff007f' : '#6c757d' }} onClick={() => aplicarFiltro('LEGO')}>LEGO</span>
+            <span style={{ cursor: 'pointer', color: filtroAtivo === 'MATTEL' ? '#ff007f' : '#6c757d' }} onClick={() => aplicarFiltro('MATTEL')}>MATTEL</span>
+            <span style={{ cursor: 'pointer', color: filtroAtivo === 'HASBRO' ? '#ff007f' : '#6c757d' }} onClick={() => aplicarFiltro('HASBRO')}>HASBRO</span>
+            <span style={{ cursor: 'pointer', color: filtroAtivo === 'ESTRELA' ? '#ff007f' : '#6c757d' }} onClick={() => aplicarFiltro('ESTRELA')}>ESTRELA</span>
+            
+            <span className="ms-auto" style={{ cursor: 'pointer', color: '#dc3545' }} onClick={() => aplicarFiltro('OFERTAS')}>OFERTAS %</span>
         </div>
 
-        {/* CÓDIGO DO QUADRO DE FILTROS (Que estava faltando) */}
+        {/* MEGA MENU */}
         {mostrarMegaMenu && (
           <div 
-            className="position-absolute shadow-lg border rounded-3 bg-white p-4" 
-            style={{ top: '100%', left: '10%', width: '600px', zIndex: 1050, display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '20px' }}
+            className="position-absolute shadow-lg border-0 rounded-bottom bg-white p-4" 
+            style={{ top: '100%', left: '0', width: '100%', zIndex: 1050 }}
             onMouseEnter={() => setMostrarMegaMenu(true)}
           >
-            <div>
-              <h6 className="fw-bold text-primary mb-3 small">Categorias</h6>
-              <ul className="list-unstyled small fw-normal">
-                {['Heróis', 'Meninas', 'Bebês', 'Bonecas', 'Ação'].map(cat => (
-                  <li key={cat} className="mb-2" style={{ cursor: 'pointer' }} onClick={() => handleFiltro(cat)}>{cat}</li>
-                ))}
-              </ul>
-            </div>
-            <div>
-              <h6 className="fw-bold text-success mb-3 small">Brincadeiras</h6>
-              <ul className="list-unstyled small fw-normal">
-                {['Jogos', 'Educativos', 'Lego', 'Puzzle', 'Esportes'].map(cat => (
-                  <li key={cat} className="mb-2" style={{ cursor: 'pointer' }} onClick={() => handleFiltro(cat)}>{cat}</li>
-                ))}
-              </ul>
-            </div>
-            <div>
-              <h6 className="fw-bold text-warning mb-3 small">Especiais</h6>
-              <ul className="list-unstyled small fw-normal">
-                {['Eletrônicos', 'Colecionáveis', 'Artes', 'Ofertas'].map(cat => (
-                  <li key={cat} className="mb-2" style={{ cursor: 'pointer' }} onClick={() => handleFiltro(cat)}>{cat}</li>
-                ))}
-              </ul>
+            <div className="container">
+                <div className="row">
+                    <div className="col-md-3 border-end">
+                        <h6 className="fw-bold text-dark mb-3">Categorias do Banco</h6>
+                        <ul className="list-unstyled small fw-normal">
+                            {categoriasDoBanco.map(cat => (
+                                <li key={cat.id} className="mb-2 text-muted" style={{ cursor: 'pointer' }} onClick={() => aplicarFiltro(cat.nome)}>
+                                    {cat.nome}
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                    {/* ... Resto do Mega Menu ... */}
+                </div>
             </div>
           </div>
         )}
@@ -116,4 +135,5 @@ function Header({ onSearch, onFilter, carrinho = [], setPagina }) {
     </header>
   );
 }
+
 export default Header;

@@ -16,57 +16,56 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @EnableWebSecurity
 public class SecurityConfig {
 
-	@Bean
-	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-	    http
-	        .cors(Customizer.withDefaults()) 
-	        .csrf(csrf -> csrf.disable())
-	        .authorizeHttpRequests(auth -> auth
-	            // 1. Público
-	            .requestMatchers(HttpMethod.GET, "/api/brinquedos/**").permitAll()
-	            .requestMatchers(HttpMethod.POST, "/api/brinquedos/encomendar/**").permitAll()
-	            .requestMatchers("/imagens/**").permitAll() // NOVO: Permite ver as fotos salvas
-	            
-	            // 2. Protegido
-	            .requestMatchers(HttpMethod.POST, "/api/brinquedos/upload").authenticated() // NOVO: Protege o endpoint de upload
-	            .requestMatchers(HttpMethod.POST, "/api/brinquedos").authenticated()
-	            .requestMatchers(HttpMethod.PUT, "/api/brinquedos/**").authenticated()
-	            .requestMatchers(HttpMethod.DELETE, "/api/brinquedos/**").authenticated()
-	            .requestMatchers(HttpMethod.PATCH, "/api/brinquedos/**").authenticated()
-	            
-	            .anyRequest().authenticated() 
-	        )
-	        // ALTERADO: Impede o pop-up de login do navegador (Basic Auth Challenge)
-	        .httpBasic(basic -> basic.authenticationEntryPoint((request, response, authException) -> {
-	            // Em vez de retornar o cabeçalho WWW-Authenticate (que abre o pop-up), 
-	            // retornamos apenas o erro 401 puro para o Axios tratar no React.
-	            response.sendError(402, authException.getMessage()); 
-	        }));
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http
+            .cors(Customizer.withDefaults()) 
+            .csrf(csrf -> csrf.disable())
+            .authorizeHttpRequests(auth -> auth
+                // 1. ROTAS PÚBLICAS (Acesso livre para a Vitrine e Header)
+                .requestMatchers(HttpMethod.GET, "/api/brinquedos/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/categorias/**").permitAll() // LIBERADO: Header consegue ler as categorias
+                .requestMatchers(HttpMethod.POST, "/api/brinquedos/encomendar/**").permitAll()
+                .requestMatchers("/imagens/**").permitAll() 
+                
+                // 2. ROTAS PROTEGIDAS (Exigem Login de Admin)
+                // Categorias (Escrita)
+                .requestMatchers(HttpMethod.POST, "/api/categorias/**").authenticated()
+                .requestMatchers(HttpMethod.PUT, "/api/categorias/**").authenticated()
+                .requestMatchers(HttpMethod.DELETE, "/api/categorias/**").authenticated()
+                
+                // Brinquedos (Escrita e Upload)
+                .requestMatchers(HttpMethod.POST, "/api/brinquedos/upload").authenticated()
+                .requestMatchers(HttpMethod.POST, "/api/brinquedos").authenticated()
+                .requestMatchers(HttpMethod.PUT, "/api/brinquedos/**").authenticated()
+                .requestMatchers(HttpMethod.DELETE, "/api/brinquedos/**").authenticated()
+                .requestMatchers(HttpMethod.PATCH, "/api/brinquedos/**").authenticated()
+                
+                .anyRequest().authenticated() 
+            )
+            .httpBasic(basic -> basic.authenticationEntryPoint((request, response, authException) -> {
+                // Retorna 401 Unauthorized para o Axios capturar, sem abrir pop-up do browser
+                response.sendError(401, authException.getMessage()); 
+            }));
 
-	    return http.build();
-	}
-     
+        return http.build();
+    }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder(); // Nosso embaralhador de senhas
-    }
+        return new BCryptPasswordEncoder();
+  }
 
-    // Libera o acesso para o React (CORS)
     @Bean
     public WebMvcConfigurer corsConfigurer() {
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                        // IMPORTANTE: origins("*") não funciona com allowCredentials(true)
-                        // Por isso, definimos o endereço exato do seu Front-end
                         .allowedOrigins("http://localhost:5173") 
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
-                        .allowCredentials(true); // Permite o envio de cookies/auth headers
+                        .allowCredentials(true);
             }
         };
     }
-    
-    
 }

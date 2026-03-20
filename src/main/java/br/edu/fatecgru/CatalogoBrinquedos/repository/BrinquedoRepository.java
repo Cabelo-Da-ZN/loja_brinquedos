@@ -3,6 +3,8 @@ package br.edu.fatecgru.CatalogoBrinquedos.repository;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.transaction.annotation.Transactional;
 import br.edu.fatecgru.CatalogoBrinquedos.model.entity.Brinquedo;
 
 public interface BrinquedoRepository extends JpaRepository<Brinquedo, Long> {
@@ -16,6 +18,12 @@ public interface BrinquedoRepository extends JpaRepository<Brinquedo, Long> {
 
     @Query("SELECT DISTINCT b.marca FROM Brinquedo b WHERE b.marca IS NOT NULL AND b.marca <> ''")
     List<String> buscarMarcasUnicas();
+
+    // NOVO: Método para atualizar o nome da categoria em todos os brinquedos vinculados
+    @Modifying
+    @Transactional
+    @Query("UPDATE Brinquedo b SET b.categoria = :novoNome WHERE b.categoria = :nomeAntigo")
+    void atualizarNomeCategoria(String nomeAntigo, String novoNome);
 
     List<Brinquedo> findAllByOrderByPrecoAsc();
     List<Brinquedo> findAllByOrderByPrecoDesc();
