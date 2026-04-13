@@ -26,10 +26,15 @@
             </div>
 
             <div class="flex items-center gap-4">
-                <div class="relative group hidden sm:block">
-                    <input type="text" id="search-input" placeholder="Buscar brinquedo..." 
+                <div class="relative group hidden sm:block" id="search-wrapper">
+                    <input type="text" id="search-input" placeholder="Buscar brinquedo..." autocomplete="off"
                            class="bg-toy-bg border-none rounded-2xl px-4 py-2 pl-10 focus:ring-2 focus:ring-toy-primary outline-none transition-all w-48 focus:w-64">
                     <i data-lucide="search" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                    
+                    <!-- Menu de Sugestões -->
+                    <div id="search-suggestions" class="absolute top-full left-0 right-0 mt-2 bg-white clay-card border-none z-[100] hidden max-h-60 overflow-y-auto p-2">
+                        <!-- Sugestões aqui -->
+                    </div>
                 </div>
                 <button onclick="toggleLoginModal()" class="w-12 h-12 flex items-center justify-center hover:bg-toy-bg rounded-2xl transition-all cursor-pointer text-toy-primary" title="Área do Administrador">
                     <i data-lucide="user-lock" class="w-6 h-6"></i>
@@ -223,13 +228,65 @@
             loadNews();
             loadProducts();
             
-            // Busca em tempo real
-            document.getElementById('search-input').addEventListener('input', (e) => {
+            const searchInput = document.getElementById('search-input');
+            const suggestionsBox = document.getElementById('search-suggestions');
+
+            // Busca em tempo real e sugestões
+            searchInput.addEventListener('input', async (e) => {
                 const term = e.target.value;
-                if(term.length > 2) searchProducts(term);
-                else if(term.length === 0) loadProducts();
+                if(term.length > 1) {
+                    const products = await fetchProductsByTerm(term);
+                    showSuggestions(products);
+                } else {
+                    suggestionsBox.classList.add('hidden');
+                }
+            });
+
+            // Fechar sugestões ao clicar fora
+            document.addEventListener('click', (e) => {
+                if(!document.getElementById('search-wrapper').contains(e.target)) {
+                    suggestionsBox.classList.add('hidden');
+                }
+            });
+
+            // Busca ao dar Enter
+            searchInput.addEventListener('keypress', (e) => {
+                if(e.key === 'Enter') {
+                    searchProducts(e.target.value);
+                    suggestionsBox.classList.add('hidden');
+                }
             });
         });
+
+        async function fetchProductsByTerm(term) {
+            try {
+                const response = await fetch(`${API_BASE}/buscar?termo=${term}`);
+                return await response.json();
+            } catch (e) { return []; }
+        }
+
+        function showSuggestions(products) {
+            const box = document.getElementById('search-suggestions');
+            if(products.length === 0) {
+                box.classList.add('hidden');
+                return;
+            }
+
+            box.innerHTML = products.map(p => `
+                <div onclick="selectSuggestion('${p.nome}')" class="p-3 hover:bg-toy-bg rounded-xl cursor-pointer flex items-center gap-3 transition-colors">
+                    <i data-lucide="package" class="w-4 h-4 text-toy-primary"></i>
+                    <span class="font-bold text-toy-text text-sm">${p.nome}</span>
+                </div>
+            `).join('');
+            box.classList.remove('hidden');
+            lucide.createIcons();
+        }
+
+        function selectSuggestion(name) {
+            document.getElementById('search-input').value = name;
+            searchProducts(name);
+            document.getElementById('search-suggestions').classList.add('hidden');
+        }
 
         async function loadCategories() {
             try {
