@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ToyWorld - O Mundo da Diversão!</title>
+    <link href="./style.css" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-toy-bg overflow-x-hidden">
+
+    <nav class="fixed top-4 left-4 right-4 z-40">
+        <div class="max-w-7xl mx-auto px-6 py-4 bg-white/80 backdrop-blur-md clay-card border-none flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <div class="w-10 h-10 bg-toy-accent rounded-full flex items-center justify-center text-white">
+                    <i data-lucide="blocks" class="w-6 h-6"></i>
+                </div>
+                <span class="text-2xl font-bold text-toy-primary tracking-tight">ToyWorld</span>
+            </div>
+            
+            <div class="hidden md:flex items-center gap-8 font-bold text-toy-text">
+                <a href="#" class="hover:text-toy-primary transition-colors">Início</a>
+                <a href="#categorias" class="hover:text-toy-primary transition-colors">Categorias</a>
+                <a href="#produtos" class="hover:text-toy-primary transition-colors">Produtos</a>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <div class="relative group hidden sm:block" id="search-wrapper">
+                    <input type="text" id="search-input" placeholder="Buscar brinquedo..." autocomplete="off"
+                           class="bg-toy-bg border-none rounded-2xl px-4 py-2 pl-10 focus:ring-2 focus:ring-toy-primary outline-none transition-all w-48 focus:w-64">
+                    <i data-lucide="search" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                    <div id="search-suggestions" class="absolute top-full left-0 right-0 mt-2 bg-white clay-card border-none z-[100] hidden max-h-60 overflow-y-auto p-2"></div>
+                </div>
+
+                <div id="user-area" class="flex items-center gap-3">
+                    <button onclick="toggleLoginModal()" class="w-12 h-12 flex items-center justify-center hover:bg-toy-bg rounded-2xl transition-all cursor-pointer text-toy-primary" title="Entrar / Cadastrar">
+                        <i data-lucide="user" class="w-6 h-6"></i>
+                    </button>
+                </div>
+
+                <button onclick="toggleCart()" class="relative w-12 h-12 flex items-center justify-center bg-toy-primary text-white rounded-2xl cursor-pointer hover:bg-toy-secondary transition-all shadow-lg">
+                    <i data-lucide="shopping-cart" class="w-6 h-6"></i>
+                    <span id="cart-count" class="hidden absolute -top-1 -right-1 bg-toy-accent text-xs font-bold w-5 h-5 items-center justify-center rounded-full border-2 border-white">0</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <div id="cart-overlay" onclick="toggleCart()" class="fixed inset-0 bg-toy-text/40 backdrop-blur-sm z-[90] hidden transition-opacity"></div>
+    <div id="cart-sidebar" class="fixed inset-y-0 right-0 w-full md:w-[450px] bg-white shadow-2xl transform translate-x-full transition-transform duration-300 z-[100] flex flex-col">
+        <div class="p-6 border-b border-slate-100 flex items-center justify-between bg-toy-bg">
+            <h2 class="text-2xl font-black text-toy-primary flex items-center gap-2">
+                <i data-lucide="shopping-bag" class="w-6 h-6"></i> Seu Carrinho
+            </h2>
+            <button onclick="toggleCart()" class="text-slate-400 hover:text-toy-accent transition-colors bg-white rounded-full p-2 shadow-sm cursor-pointer">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+        
+        <div id="cart-items" class="flex-1 overflow-y-auto p-6 space-y-4 bg-slate-50">
+            </div>
+
+        <div class="p-6 border-t border-slate-200 bg-white">
+            <div class="flex justify-between items-center mb-6">
+                <span class="font-bold text-slate-500 text-lg">Total estimado:</span>
+                <span id="cart-total" class="font-black text-3xl text-toy-primary">R$ 0,00</span>
+            </div>
+            <button onclick="finalizarCompra()" class="w-full btn-clay-accent py-4 text-xl flex items-center justify-center gap-2 cursor-pointer">
+                <i data-lucide="check-circle-2" class="w-6 h-6"></i> Finalizar Compra
+            </button>
+        </div>
+    </div>
+
+    <section class="pt-32 pb-16 px-4">
+        <div class="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
+            <div class="space-y-8 text-center lg:text-left">
+                <div class="inline-block px-4 py-2 bg-toy-accent/10 text-toy-accent rounded-full font-black text-sm tracking-widest uppercase">Novidades de 2026 🚀</div>
+                <h1 class="text-6xl lg:text-8xl font-black text-toy-primary leading-tight">
+                    Onde a <span class="text-toy-accent underline decoration-8 decoration-toy-accent/20">Magia</span> Acontece!
+                </h1>
+                <p class="text-xl text-slate-600 font-medium max-w-xl mx-auto lg:mx-0 leading-relaxed">Explore nossa coleção exclusiva de brinquedos educativos, action figures e aventuras sem fim.</p>
+                <div class="flex flex-wrap gap-4 justify-center lg:justify-start">
+                    <a href="#produtos" class="btn-clay-primary text-lg flex items-center gap-2 group">Ver Catálogo <i data-lucide="chevron-down" class="w-5 h-5 group-hover:translate-y-1 transition-transform"></i></a>
+                </div>
+            </div>
+            <div class="relative group">
+                <div class="clay-card aspect-square flex items-center justify-center relative overflow-hidden bg-gradient-to-br from-indigo-50 to-white">
+                    <i data-lucide="rocket" class="w-32 h-32 text-toy-primary animate-bounce"></i>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="categorias" class="py-12 px-4">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex items-center gap-4 overflow-x-auto pb-4 no-scrollbar" id="category-filters">
+                <button onclick="filterByCategory('Todos')" class="clay-card px-8 py-3 font-bold whitespace-nowrap bg-toy-primary text-white border-none cursor-pointer hover:scale-105 active:scale-95 transition-all">Todos</button>
+            </div>
+        </div>
+    </section>
+
+    <section id="produtos" class="py-20 px-4 bg-white/30 rounded-t-[100px] border-t-8 border-white">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
+                <div class="space-y-2">
+                    <span class="text-toy-accent font-black tracking-widest uppercase">Catálogo Completo</span>
+                    <h2 class="text-5xl font-black">Explore os Brinquedos</h2>
+                </div>
+                <div class="flex gap-4">
+                    <select onchange="if(this.value) orderProducts(this.value)" class="clay-card px-6 py-3 font-bold outline-none cursor-pointer hover:bg-toy-primary hover:text-white transition-colors">
+                        <option value="" selected disabled>Ordenar por...</option>
+                        <option value="asc">Menor Preço</option>
+                        <option value="desc">Maior Preço</option>
+                    </select>
+                </div>
+            </div>
+            <div id="product-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8"></div>
+        </div>
+    </section>
+
+    <div id="login-modal" class="fixed inset-0 z-[100] hidden flex items-center justify-center px-4">
+        <div class="absolute inset-0 bg-toy-text/40 backdrop-blur-sm" onclick="toggleLoginModal()"></div>
+        <div class="clay-card max-w-md w-full p-10 relative bg-white z-10">
+            <button onclick="toggleLoginModal()" class="absolute top-4 right-4 text-slate-400 hover:text-toy-accent transition-colors"><i data-lucide="x" class="w-6 h-6"></i></button>
+            <h3 class="text-2xl font-black text-center mb-8">Acessar Conta</h3>
+            <form onsubmit="handleLogin(event)" class="space-y-4">
+                <div><label class="block text-sm font-black mb-2">Usuário</label><input type="text" id="login-user" required class="w-full bg-toy-bg border-none rounded-xl px-4 py-3 outline-none"></div>
+                <div><label class="block text-sm font-black mb-2">Senha</label><input type="password" id="login-pass" required class="w-full bg-toy-bg border-none rounded-xl px-4 py-3 outline-none"></div>
+                <button type="submit" class="w-full btn-clay-primary text-lg cursor-pointer">Entrar</button>
+            </form>
+            <div class="mt-6 text-center"><button onclick="toggleRegisterModal()" class="text-toy-accent font-black hover:underline mt-1 cursor-pointer">Criar uma conta grátis</button></div>
+        </div>
+    </div>
+
+    <div id="register-modal" class="fixed inset-0 z-[100] hidden flex items-center justify-center px-4">
+        <div class="absolute inset-0 bg-toy-text/40 backdrop-blur-sm" onclick="toggleRegisterModal(true)"></div>
+        <div class="clay-card max-w-md w-full p-10 relative bg-white z-10">
+            <button onclick="toggleRegisterModal(true)" class="absolute top-4 right-4 text-slate-400 hover:text-toy-accent transition-colors cursor-pointer"><i data-lucide="x" class="w-6 h-6"></i></button>
+            <h3 class="text-2xl font-black text-center mb-8 text-toy-primary">Criar Conta</h3>
+            <form onsubmit="handleRegister(event)" class="space-y-4">
+                <div><label class="block text-sm font-black mb-2">Usuário</label><input type="text" id="reg-user" required class="w-full bg-toy-bg border-none rounded-xl px-4 py-3 outline-none"></div>
+                <div><label class="block text-sm font-black mb-2">Senha</label><input type="password" id="reg-pass" required class="w-full bg-toy-bg border-none rounded-xl px-4 py-3 outline-none"></div>
+                <button type="submit" class="w-full btn-clay-accent text-lg cursor-pointer">Cadastrar</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="toast-container" class="fixed bottom-6 right-6 z-[200] flex flex-col gap-3 pointer-events-none"></div>
+
+    <script>
+        const API_BASE = 'http://localhost:8080/api/brinquedos';
+        const API_USER = 'http://localhost:8080/api/usuarios';
+        
+        // Estrutura do carrinho: Array de objetos
+        let carrinho = JSON.parse(localStorage.getItem('toy_cart')) || [];
+        
+        // CORREÇÃO: Limpa o carrinho velho caso o usuário tenha dados antigos salvos no navegador
+        if (carrinho.length > 0 && carrinho[0].preco === undefined) {
+            carrinho = [];
+            localStorage.removeItem('toy_cart');
+        }
+
+        lucide.createIcons();
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadCategories();
+            loadProducts();
+            checkLoginState();
+            updateCartUI(); // Atualiza a interface do carrinho e a bolinha
+
+            const searchInput = document.getElementById('search-input');
+            searchInput.addEventListener('input', async (e) => {
+                const term = e.target.value;
+                if(term.length > 1) {
+                    const response = await fetch(`${API_BASE}/buscar?termo=${term}`);
+                    showSuggestions(await response.json());
+                } else {
+                    document.getElementById('search-suggestions').classList.add('hidden');
+                }
+            });
+        });
+
+        // --- Toasts ---
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            const bgColor = type === 'success' ? 'bg-emerald-500' : 'bg-rose-500';
+            const iconName = type === 'success' ? 'check-circle-2' : 'alert-circle';
+
+            toast.className = `flex items-center gap-3 px-6 py-4 rounded-2xl text-white font-bold shadow-2xl transform transition-all duration-300 translate-y-10 opacity-0 ${bgColor} pointer-events-auto`;
+            toast.innerHTML = `<i data-lucide="${iconName}" class="w-6 h-6"></i><span>${message}</span>`;
+
+            container.appendChild(toast);
+            lucide.createIcons();
+
+            setTimeout(() => toast.classList.remove('translate-y-10', 'opacity-0'), 10);
+            setTimeout(() => {
+                toast.classList.add('translate-y-10', 'opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 3500);
+        }
+
+        // --- Autenticação ---
+        function checkLoginState() {
+            const user = localStorage.getItem('toy_user');
+            const userArea = document.getElementById('user-area');
+            if (user) {
+                const isAdmin = (user === 'admin');
+                userArea.innerHTML = `
+                    <div class="flex items-center gap-2 bg-toy-bg px-4 py-2 rounded-2xl border-2 border-white shadow-sm">
+                        <div class="flex flex-col items-end">
+                            <span class="text-xs font-black text-toy-primary leading-none uppercase tracking-tighter">${isAdmin ? 'Administrador' : 'Viajante'}</span>
+                            <span class="text-sm font-bold text-toy-text leading-tight">${user}</span>
+                        </div>
+                        <div class="w-8 h-8 rounded-full flex items-center justify-center ${isAdmin ? 'bg-toy-primary' : 'bg-toy-accent'} text-white">
+                            <i data-lucide="${isAdmin ? 'shield-check' : 'star'}" class="w-4 h-4"></i>
+                        </div>
+                        <button onclick="logout()" class="ml-2 text-slate-400 hover:text-red-500 transition-colors cursor-pointer"><i data-lucide="log-out" class="w-5 h-5"></i></button>
+                    </div>
+                    ${isAdmin ? '<a href="admin.html" class="text-toy-primary hover:scale-110 transition-transform" title="Painel Admin"><i data-lucide="settings" class="w-6 h-6"></i></a>' : ''}
+                `;
+                lucide.createIcons();
+            }
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            const user = document.getElementById('login-user').value;
+            const pass = document.getElementById('login-pass').value;
+            const credentials = btoa(`${user}:${pass}`);
+            try {
+                const response = await fetch(API_BASE, { headers: { 'Authorization': `Basic ${credentials}` } });
+                if(response.ok) {
+                    localStorage.setItem('toy_auth', credentials);
+                    localStorage.setItem('toy_user', user);
+                    window.location.reload();
+                } else { showToast("Usuário ou senha incorretos!", "error"); }
+            } catch (e) { showToast("Erro de conexão.", "error"); }
+        }
+
+        async function handleRegister(e) {
+            e.preventDefault();
+            const user = document.getElementById('reg-user').value;
+            const pass = document.getElementById('reg-pass').value;
+            try {
+                const response = await fetch(API_USER, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ login: user, senha: pass })
+                });
+                if(response.ok) { 
+                    showToast("Conta criada com sucesso! 🎉");
+                    toggleRegisterModal(true); toggleLoginModal(); 
+                } else { showToast("Erro ao criar conta.", "error"); }
+            } catch (e) { showToast("Erro no servidor.", "error"); }
+        }
+
+        function logout() { localStorage.clear(); window.location.reload(); }
+        function toggleLoginModal() { document.getElementById('login-modal').classList.toggle('hidden'); }
+        function toggleRegisterModal(closeAll = false) {
+            if (closeAll) { document.getElementById('register-modal').classList.add('hidden'); }
+            else { document.getElementById('login-modal').classList.add('hidden'); document.getElementById('register-modal').classList.remove('hidden'); }
+        }
+
+        // --- Produtos & Categorias ---
+        async function loadCategories() {
+            try {
+                const response = await fetch(`${API_BASE}/categorias`);
+                const categories = await response.json();
+                const container = document.getElementById('category-filters');
+                categories.forEach(cat => {
+                    const btn = document.createElement('button');
+                    btn.className = 'clay-card px-8 py-3 font-bold bg-white hover:bg-toy-primary hover:text-white transition-all cursor-pointer';
+                    btn.textContent = cat;
+                    btn.onclick = () => filterByCategory(cat);
+                    container.appendChild(btn);
+                });
+            } catch (e) { console.error(e); }
+        }
+
+        async function loadProducts() {
+            try {
+                const response = await fetch(API_BASE);
+                renderProductGrid(await response.json());
+            } catch (e) { console.error(e); }
+        }
+
+        async function filterByCategory(cat) {
+            const url = cat === 'Todos' ? API_BASE : `${API_BASE}/filtro?categoria=${cat}`;
+            const response = await fetch(url);
+            renderProductGrid(await response.json());
+        }
+
+        async function orderProducts(order) {
+            const response = await fetch(`${API_BASE}/ordenar?sentido=${order}`);
+            renderProductGrid(await response.json());
+        }
+
+        function showSuggestions(products) {
+            const box = document.getElementById('search-suggestions');
+            if(products.length === 0) { box.classList.add('hidden'); return; }
+            box.innerHTML = products.map(p => `<div onclick="selectSuggestion('${p.nome}')" class="p-3 hover:bg-toy-bg rounded-xl cursor-pointer font-bold text-sm">${p.nome}</div>`).join('');
+            box.classList.remove('hidden');
+        }
+
+        function selectSuggestion(name) {
+            document.getElementById('search-input').value = name;
+            document.getElementById('search-suggestions').classList.add('hidden');
+            document.getElementById('produtos').scrollIntoView({ behavior: 'smooth' });
+            searchProducts(name);
+        }
+
+        async function searchProducts(term) {
+            const response = await fetch(`${API_BASE}/buscar?termo=${term}`);
+            renderProductGrid(await response.json());
+        }
+
+        function renderProductGrid(products) {
+            const container = document.getElementById('product-container');
+            container.innerHTML = products.map(p => {
+                const imgUrl = p.caminhoImagem || '';
+                return `
+                <div class="clay-card p-6 flex flex-col bg-white">
+                    <div class="aspect-square bg-toy-bg rounded-2xl mb-6 flex items-center justify-center overflow-hidden">
+                        ${imgUrl ? `<img src="${imgUrl}" class="w-full h-full object-contain p-4 hover:scale-110 transition-transform">` : `<i data-lucide="package" class="w-16 h-16 text-slate-300"></i>`}
+                    </div>
+                    <div class="space-y-2 mb-4">
+                        <h3 class="text-xl font-black truncate">${p.nome}</h3>
+                        <p class="text-2xl font-black text-toy-text">R$ ${p.preco.toFixed(2)}</p>
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">${p.categoria}</p>
+                        <p class="text-sm font-bold text-slate-500">Estoque: ${p.quantidade}</p>
+                    </div>
+                    <button onclick="adicionarAoCarrinho(${p.id}, '${p.nome}', ${p.preco}, '${imgUrl}')" ${p.quantidade === 0 ? 'disabled' : ''} class="w-full py-3 bg-toy-accent text-white font-black rounded-xl hover:scale-105 transition-transform disabled:bg-slate-300 disabled:scale-100 cursor-pointer">
+                        ${p.quantidade === 0 ? 'Esgotado' : 'Adicionar'}
+                    </button>
+                </div>
+            `}).join('');
+            lucide.createIcons();
+        }
+
+        // --- LÓGICA DO NOVO CARRINHO ---
+        function toggleCart() {
+            const sidebar = document.getElementById('cart-sidebar');
+            const overlay = document.getElementById('cart-overlay');
+            
+            if (sidebar.classList.contains('translate-x-full')) {
+                sidebar.classList.remove('translate-x-full');
+                overlay.classList.remove('hidden');
+            } else {
+                sidebar.classList.add('translate-x-full');
+                overlay.classList.add('hidden');
+            }
+        }
+
+        function adicionarAoCarrinho(id, nome, preco, imagem) {
+            const itemExistente = carrinho.find(item => item.id === id);
+            
+            if (itemExistente) {
+                itemExistente.qtde += 1;
+            } else {
+                carrinho.push({ id, nome, preco, imagem, qtde: 1 });
+            }
+            
+            saveCart();
+            showToast(`${nome} adicionado! 🛒`);
+        }
+
+        function removerDoCarrinho(id) {
+            carrinho = carrinho.filter(item => item.id !== id);
+            saveCart();
+            showToast("Item removido do carrinho.", "error");
+        }
+
+        function saveCart() {
+            localStorage.setItem('toy_cart', JSON.stringify(carrinho));
+            updateCartUI();
+        }
+
+        function updateCartUI() {
+            const container = document.getElementById('cart-items');
+            const totalElement = document.getElementById('cart-total');
+            const countElement = document.getElementById('cart-count');
+            
+            // Oculta a bolinha vermelha se não tiver itens
+            const totalItems = carrinho.reduce((acc, item) => acc + item.qtde, 0);
+            if (totalItems > 0) {
+                countElement.textContent = totalItems;
+                countElement.classList.remove('hidden');
+                countElement.classList.add('flex');
+            } else {
+                countElement.classList.add('hidden');
+                countElement.classList.remove('flex');
+            }
+
+            // Deixa a gaveta completamente vazia sem texto se não tiver itens
+            if (carrinho.length === 0) {
+                container.innerHTML = ''; 
+                totalElement.textContent = "R$ 0,00";
+                return;
+            }
+
+            let valorTotal = 0;
+            container.innerHTML = carrinho.map(item => {
+                const subtotal = item.preco * item.qtde;
+                valorTotal += subtotal;
+                return `
+                <div class="bg-white p-4 rounded-2xl flex gap-4 shadow-sm items-center">
+                    <div class="w-16 h-16 bg-toy-bg rounded-xl flex-shrink-0 flex items-center justify-center overflow-hidden">
+                        ${item.imagem ? `<img src="${item.imagem}" class="w-full h-full object-contain p-1">` : `<i data-lucide="package" class="text-slate-300"></i>`}
+                    </div>
+                    <div class="flex-1">
+                        <h4 class="font-black text-sm text-toy-primary leading-tight">${item.nome}</h4>
+                        <p class="font-bold text-slate-500 text-xs mt-1">Qtde: ${item.qtde} x R$ ${item.preco.toFixed(2)}</p>
+                        <p class="font-black text-toy-accent text-sm mt-1">R$ ${subtotal.toFixed(2)}</p>
+                    </div>
+                    <button onclick="removerDoCarrinho(${item.id})" class="text-slate-300 hover:text-red-500 transition-colors p-2 cursor-pointer">
+                        <i data-lucide="trash-2" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            `}).join('');
+            
+            totalElement.textContent = `R$ ${valorTotal.toFixed(2)}`;
+            lucide.createIcons();
+        }
+
+        async function finalizarCompra() {
+            if (carrinho.length === 0) { 
+                showToast("Adicione algo ao carrinho primeiro!", "error"); 
+                return; 
+            }
+            
+            if (confirm(`Deseja confirmar o pagamento?`)) {
+                try {
+                    showToast("Processando pedido... ⏳", "success");
+                    for (let item of carrinho) { 
+                        for(let i = 0; i < item.qtde; i++) {
+                            await fetch(`${API_BASE}/encomendar/${item.id}`, { method: 'POST' }); 
+                        }
+                    }
+                    
+                    carrinho = [];
+                    saveCart();
+                    loadProducts(); 
+                    toggleCart();   
+                    showToast("Compra finalizada com sucesso! 🎉", "success");
+                } catch (e) { 
+                    showToast("Erro de comunicação com o sistema.", "error"); 
+                }
+            }
+        }
+    </script>
+</body>
+</html>

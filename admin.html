@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ToyWorld - Painel Admin</title>
+    <link href="./style.css" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-slate-50">
+
+    <div class="flex min-h-screen">
+        <aside class="w-64 bg-toy-text text-white p-6 space-y-8 hidden md:block">
+            <div class="flex items-center gap-2 mb-10">
+                <span class="text-xl font-bold tracking-tight">AdminPanel</span>
+            </div>
+            <nav class="space-y-4">
+                <a href="#" class="flex items-center gap-3 p-3 bg-toy-primary rounded-xl font-bold">
+                    <i data-lucide="layout-dashboard" class="w-5 h-5"></i> Dashboard
+                </a>
+                <a href="index.html" target="_blank" class="flex items-center gap-3 p-3 hover:bg-white/10 rounded-xl transition-all font-bold">
+                    <i data-lucide="external-link" class="w-5 h-5"></i> Ver Loja
+                </a>
+                <button onclick="logout()" class="flex items-center gap-3 p-3 hover:bg-red-500/20 text-red-400 rounded-xl transition-all font-bold w-full text-left cursor-pointer">
+                    <i data-lucide="log-out" class="w-5 h-5"></i> Sair do Painel
+                </button>
+            </nav>
+        </aside>
+
+        <main class="flex-1 p-4 md:p-10">
+            <header class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
+                <h1 class="text-4xl font-black text-toy-text">Gerir Catálogo</h1>
+                <button onclick="openModal()" class="btn-clay-primary flex items-center gap-2">
+                    <i data-lucide="plus-circle" class="w-6 h-6"></i> Novo Brinquedo
+                </button>
+            </header>
+
+            <div class="clay-card bg-white overflow-hidden border-none shadow-sm">
+                <table class="w-full text-left">
+                    <thead class="bg-toy-bg text-toy-text uppercase text-xs font-black">
+                        <tr>
+                            <th class="px-6 py-4">Produto</th>
+                            <th class="px-6 py-4">Categoria</th>
+                            <th class="px-6 py-4">Preço</th>
+                            <th class="px-6 py-4">Estoque</th>
+                            <th class="px-6 py-4">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-product-table">
+                        </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <div id="toy-modal" class="fixed inset-0 z-[100] hidden flex items-center justify-center px-4">
+        <div class="absolute inset-0 bg-toy-text/40 backdrop-blur-sm" onclick="closeModal()"></div>
+        <div class="clay-card max-w-2xl w-full p-8 relative bg-white z-10">
+            <h2 id="modal-title" class="text-3xl font-black mb-6 text-toy-primary">Novo Brinquedo</h2>
+            <form id="toy-form" onsubmit="handleSubmit(event)" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <input type="hidden" id="toy-id">
+                
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-black mb-2 text-slate-500">Nome do Produto</label>
+                    <input type="text" id="toy-nome" required class="w-full bg-toy-bg border-none rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-toy-primary font-bold">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-black mb-2 text-slate-500">Categoria</label>
+                    <select id="toy-categoria" required class="w-full bg-toy-bg border-none rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-toy-primary font-bold">
+                        <option value="" disabled selected>Selecione...</option>
+                        <option value="Ação">Ação</option>
+                        <option value="Tabuleiro">Tabuleiro</option>
+                        <option value="Bonecas">Bonecas</option>
+                        <option value="Educativos">Educativos</option>
+                        <option value="Veículos">Veículos</option>
+                        <option value="Pelúcias">Pelúcias</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-black mb-2 text-slate-500">Preço (R$)</label>
+                    <input type="number" step="0.01" id="toy-preco" required class="w-full bg-toy-bg border-none rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-toy-primary font-bold">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-black mb-2 text-slate-500">Quantidade em Estoque</label>
+                    <input type="number" id="toy-quantidade" required class="w-full bg-toy-bg border-none rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-toy-primary font-bold">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-black mb-2 text-slate-500">Desconto (%)</label>
+                    <input type="number" step="0.1" id="toy-desconto" class="w-full bg-toy-bg border-none rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-toy-primary font-bold" value="0">
+                </div>
+                
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-black mb-2 text-slate-500">Link da Imagem</label>
+                    <input type="text" id="toy-imagem" class="w-full bg-toy-bg border-none rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-toy-primary" placeholder="URL da foto">
+                </div>
+                
+                <div class="md:col-span-2 flex justify-end gap-4 pt-4 border-t border-slate-100 mt-2">
+                    <button type="button" onclick="closeModal()" class="px-6 py-3 font-bold text-slate-400 hover:text-slate-600 cursor-pointer">Cancelar</button>
+                    <button type="submit" id="btn-submit" class="btn-clay-primary px-10">Salvar Alterações</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8080/api/brinquedos';
+        const AUTH = localStorage.getItem('toy_auth');
+        let brinquedosCache = []; // Guarda os produtos para facilitar a edição
+        
+        lucide.createIcons();
+
+        if(!AUTH) window.location.href = 'index.html';
+
+        async function loadAdminProducts() {
+            try {
+                const response = await fetch(API_BASE);
+                brinquedosCache = await response.json();
+                
+                const tbody = document.getElementById('admin-product-table');
+                
+                tbody.innerHTML = brinquedosCache.map(p => `
+                    <tr class="border-b border-slate-100 hover:bg-slate-50 transition-colors">
+                        <td class="px-6 py-4 font-bold text-toy-primary flex items-center gap-4">
+                            <img src="${p.caminhoImagem || ''}" class="w-10 h-10 object-contain rounded-lg bg-toy-bg p-1">
+                            ${p.nome}
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="bg-toy-bg px-3 py-1 rounded-full text-xs font-black text-toy-text uppercase">${p.categoria}</span>
+                        </td>
+                        <td class="px-6 py-4 font-black">R$ ${p.preco.toFixed(2)}</td>
+                        <td class="px-6 py-4 font-bold text-slate-500">${p.quantidade} un.</td>
+                        <td class="px-6 py-4">
+                            <div class="flex gap-2">
+                                <button onclick="prepararEdicao(${p.id})" class="text-toy-primary hover:bg-toy-primary/10 p-2 rounded-lg transition-all cursor-pointer" title="Editar">
+                                    <i data-lucide="edit-3" class="w-5 h-5"></i>
+                                </button>
+                                <button onclick="deleteToy(${p.id})" class="text-red-400 hover:bg-red-50 p-2 rounded-lg transition-all cursor-pointer" title="Excluir">
+                                    <i data-lucide="trash-2" class="w-5 h-5"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+                lucide.createIcons();
+            } catch (error) { console.error(error); }
+        }
+
+        // Função que preenche o modal com os dados do brinquedo para editar
+        function prepararEdicao(id) {
+            const toy = brinquedosCache.find(b => b.id === id);
+            if (!toy) return;
+
+            // Preenche os campos do formulário
+            document.getElementById('toy-id').value = toy.id;
+            document.getElementById('toy-nome').value = toy.nome;
+            document.getElementById('toy-categoria').value = toy.categoria;
+            document.getElementById('toy-preco').value = toy.preco;
+            document.getElementById('toy-quantidade').value = toy.quantidade;
+            document.getElementById('toy-imagem').value = toy.caminhoImagem || '';
+            document.getElementById('toy-desconto').value = toy.desconto || 0;
+
+            // Muda o visual do modal para "Modo Edição"
+            document.getElementById('modal-title').textContent = "Editar Brinquedo";
+            document.getElementById('btn-submit').textContent = "Atualizar Produto";
+            
+            openModal(true); // Abre o modal sem resetar os campos
+        }
+
+        async function handleSubmit(e) {
+            e.preventDefault();
+            
+            const id = document.getElementById('toy-id').value;
+            const toyData = {
+                nome: document.getElementById('toy-nome').value,
+                preco: parseFloat(document.getElementById('toy-preco').value),
+                categoria: document.getElementById('toy-categoria').value,
+                caminhoImagem: document.getElementById('toy-imagem').value,
+                quantidade: parseInt(document.getElementById('toy-quantidade').value),
+                desconto: parseFloat(document.getElementById('toy-desconto').value),
+                descricao: "Atualizado via Painel Admin."
+            };
+
+            // SE TIVER ID -> PUT (Atualizar) | SE NÃO TIVER ID -> POST (Criar)
+            const metodo = id ? 'PUT' : 'POST';
+            const url = id ? `${API_BASE}/${id}` : API_BASE;
+
+            try {
+                const response = await fetch(url, {
+                    method: metodo,
+                    headers: { 
+                        'Content-Type': 'application/json', 
+                        'Authorization': `Basic ${AUTH}` 
+                    },
+                    body: JSON.stringify(toyData)
+                });
+
+                if(response.ok) { 
+                    closeModal(); 
+                    loadAdminProducts(); 
+                } else {
+                    alert("Erro ao salvar. Verifique as permissões do sistema.");
+                }
+            } catch (error) { console.error(error); }
+        }
+
+        async function deleteToy(id) {
+            if(!confirm("Tem certeza que deseja excluir este brinquedo?")) return;
+            await fetch(`${API_BASE}/${id}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Basic ${AUTH}` }
+            });
+            loadAdminProducts();
+        }
+
+        function openModal(isEdit = false) { 
+            if(!isEdit) {
+                document.getElementById('toy-form').reset();
+                document.getElementById('toy-id').value = ""; // Limpa a ID para não entrar em modo edição
+                document.getElementById('modal-title').textContent = "Novo Brinquedo";
+                document.getElementById('btn-submit').textContent = "Salvar Produto";
+            }
+            document.getElementById('toy-modal').classList.remove('hidden'); 
+        }
+        
+        function closeModal() { document.getElementById('toy-modal').classList.add('hidden'); }
+        
+        function logout() {
+            localStorage.clear();
+            window.location.href = 'index.html';
+        }
+
+        loadAdminProducts();
+    </script>
+</body>
+</html>
