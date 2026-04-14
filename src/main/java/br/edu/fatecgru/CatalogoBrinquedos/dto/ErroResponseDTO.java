@@ -2,10 +2,23 @@ package br.edu.fatecgru.CatalogoBrinquedos.dto;
 
 import java.time.LocalDateTime;
 
-public record ErroResponseDTO( // DTO para padronizar as respostas de erro. record é uma classe imutável, ideal para esse tipo de uso.
-    LocalDateTime timestamp,
-    int status,
-    String erro,
-    String mensagem,
-    String caminho
-) {}
+public class ErroResponseDTO {
+    private int status;
+    private String mensagem;
+    private LocalDateTime timestamp;
+
+    public ErroResponseDTO() {}
+
+    public ErroResponseDTO(int status, String mensagem, LocalDateTime timestamp) {
+        this.status = status;
+        this.mensagem = mensagem;
+        this.timestamp = timestamp;
+    }
+
+    public int getStatus() { return status; }
+    public void setStatus(int status) { this.status = status; }
+    public String getMensagem() { return mensagem; }
+    public void setMensagem(String mensagem) { this.mensagem = mensagem; }
+    public LocalDateTime getTimestamp() { return timestamp; }
+    public void setTimestamp(LocalDateTime timestamp) { this.timestamp = timestamp; }
+}

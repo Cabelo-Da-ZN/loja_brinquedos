@@ -1,13 +1,17 @@
 package br.edu.fatecgru.CatalogoBrinquedos.service;
 
-import java.util.ArrayList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import br.edu.fatecgru.CatalogoBrinquedos.dto.BrinquedoRequestDTO;
 import br.edu.fatecgru.CatalogoBrinquedos.dto.BrinquedoResponseDTO;
+import br.edu.fatecgru.CatalogoBrinquedos.dto.EncomendaResponseDTO;
 import br.edu.fatecgru.CatalogoBrinquedos.model.entity.Brinquedo;
+import br.edu.fatecgru.CatalogoBrinquedos.model.entity.Encomenda;
+import br.edu.fatecgru.CatalogoBrinquedos.model.entity.StatusEncomenda;
+import br.edu.fatecgru.CatalogoBrinquedos.model.entity.Usuario;
 import br.edu.fatecgru.CatalogoBrinquedos.repository.BrinquedoRepository;
+import br.edu.fatecgru.CatalogoBrinquedos.repository.EncomendaRepository;
 
 @Service
 public class BrinquedoService {
@@ -15,7 +19,9 @@ public class BrinquedoService {
     @Autowired
     private BrinquedoRepository repository;
 
-    // Método para salvar um novo brinquedo, mapeando os dados do DTO para a entidade e retornando o DTO de resposta
+    @Autowired
+    private EncomendaRepository encomendaRepository;
+
     public BrinquedoResponseDTO salvarBrinquedo(BrinquedoRequestDTO request) {
         Brinquedo entidade = new Brinquedo();
         mapearDtoParaEntidade(request, entidade);
@@ -23,7 +29,6 @@ public class BrinquedoService {
         return converterParaResponse(entidadeSalva);
     }
     
-    // Método para atualizar um brinquedo existente, buscando a entidade pelo ID, mapeando os dados do DTO e salvando as alterações
     public BrinquedoResponseDTO atualizarBrinquedo(Long id, BrinquedoRequestDTO request) {
         Brinquedo entidadeExistente = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Erro: Brinquedo com ID " + id + " não encontrado."));
@@ -33,18 +38,15 @@ public class BrinquedoService {
         return converterParaResponse(entidadeSalva);
     }
     
-    // Método para listar todos os brinquedos, convertendo cada entidade para DTO de resposta
     public List<BrinquedoResponseDTO> listarTodos() {
         List<Brinquedo> listaEntidades = repository.findAll();
         return listaEntidades.stream().map(this::converterParaResponse).toList();
     }
     
-    // Método para excluir um brinquedo por ID
     public void excluirBrinquedo(Long id) {
         repository.deleteById(id);
     }
     
-    // Método para buscar um brinquedo por ID e retornar os dados no formato do RequestDTO (para preencher o formulário de edição)
     public BrinquedoRequestDTO buscarPorId(Long id) {
         Brinquedo entidade = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Brinquedo não encontrado"));
@@ -56,47 +58,44 @@ public class BrinquedoService {
         dto.setCategoria(entidade.getCategoria());
         dto.setCaminhoImagem(entidade.getCaminhoImagem());
         dto.setDesconto(entidade.getDesconto());
-        // Faltava adicionar a quantidade aqui no RequestDTO!
         dto.setQuantidade(entidade.getQuantidade()); 
+        dto.setDescricao(entidade.getDescricao());
 
         return dto;
     }
     
-    // Método para filtrar por nome (busca parcial, case-insensitive) 
-    public List<BrinquedoResponseDTO> buscarPorNome(String nome) {
-        List<Brinquedo> entidades = repository.findByNomeContainingIgnoreCase(nome);
+    // BUSCA INTELIGENTE: Pesquisa o termo em nome, categoria e descrição
+    public List<BrinquedoResponseDTO> buscarPorTermo(String termo) {
+        List<Brinquedo> entidades = repository.findByNomeContainingIgnoreCaseOrCategoriaContainingIgnoreCaseOrDescricaoContainingIgnoreCase(
+                termo, termo, termo);
         return entidades.stream().map(this::converterParaResponse).toList();
     }
     
-    // Método para filtrar por categoria
+    // ALIAS: Método buscarPorNome chamado pelo HomeController
+    public List<BrinquedoResponseDTO> buscarPorNome(String nome) {
+        return buscarPorTermo(nome);
+    }
+    
     public List<BrinquedoResponseDTO> buscarPorCategoria(String categoria) {
         List<Brinquedo> entidades = repository.findByCategoria(categoria);
         return entidades.stream().map(this::converterParaResponse).toList();
     }
     
-    // Método para listar categorias únicas (para o Front)
     public List<String> listarCategorias() {
         return repository.buscarCategoriasUnicas();
     }
     
-    //método auxiliar para mapear os dados do DTO para a entidade
- // No seu BrinquedoService.java, atualize o mapeamento:
-
     private void mapearDtoParaEntidade(BrinquedoRequestDTO request, Brinquedo entidade) {
-        // VALIDAÇÕES DE SEGURANÇA
         if (request.getNome() == null || request.getNome().isBlank()) {
             throw new RuntimeException("O nome do brinquedo é obrigatório.");
         }
-        
         if (request.getPreco() == null || request.getPreco() <= 0) {
             throw new RuntimeException("O preço deve ser maior que zero.");
         }
-        
         if (request.getQuantidade() != null && request.getQuantidade() < 0) {
             throw new RuntimeException("A quantidade em estoque não pode ser negativa.");
         }
 
-        // Se passar pelas validações, ele segue o fluxo normal
         entidade.setNome(request.getNome());
         entidade.setPreco(request.getPreco());
         entidade.setCategoria(request.getCategoria());
@@ -106,9 +105,7 @@ public class BrinquedoService {
         entidade.setDescricao(request.getDescricao());
     }
     
-    // Método para converter entidade em DTO de resposta
     private BrinquedoResponseDTO converterParaResponse(Brinquedo entidade) {
-     
         return new BrinquedoResponseDTO(
                 entidade.getId(), 
                 entidade.getNome(),
@@ -122,7 +119,6 @@ public class BrinquedoService {
         );
     }
 
-    //Métodos para ordenação por preço
     public List<BrinquedoResponseDTO> listarPorPreco(String sentido) {
         List<Brinquedo> entidades = sentido.equalsIgnoreCase("desc") 
                 ? repository.findAllByOrderByPrecoDesc() 
@@ -131,16 +127,14 @@ public class BrinquedoService {
         return entidades.stream().map(this::converterParaResponse).toList();
     }
 
-    // Método para listar as 3 últimas novidades
     public List<BrinquedoResponseDTO> listarNovidades() {
         return repository.findTop3ByOrderByIdDesc()
                 .stream()
                 .map(this::converterParaResponse)
                 .toList();
     }
-    
- // Lógica de Encomenda (Usuário Comum)
-    public BrinquedoResponseDTO encomendarBrinquedo(Long id) {
+
+    public EncomendaResponseDTO encomendarBrinquedo(Long id, Usuario usuario) {
         Brinquedo brinquedo = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Brinquedo não encontrado"));
 
@@ -148,30 +142,78 @@ public class BrinquedoService {
             throw new RuntimeException("Produto esgotado no estoque!");
         }
 
-        // Regra: Diminui 1 do estoque e aumenta 1 nas vendas (destaque)
         brinquedo.setQuantidade(brinquedo.getQuantidade() - 1);
         brinquedo.setVendas(brinquedo.getVendas() + 1);
+        repository.save(brinquedo);
 
-        return converterParaResponse(repository.save(brinquedo));
+        Encomenda encomenda = new Encomenda(usuario, brinquedo, brinquedo.getPreco());
+        Encomenda salva = encomendaRepository.save(encomenda);
+
+        return converterParaEncomendaResponse(salva);
     }
 
-    // Lógica de Reposição (Administrador)
+    public List<EncomendaResponseDTO> listarHistorico(Usuario usuario) {
+        return encomendaRepository.findByUsuarioOrderByDataPedidoDesc(usuario)
+            .stream()
+            .map(this::converterParaEncomendaResponse).toList();
+    }
+
+    // NOVA FUNÇÃO: Admin lista todas as encomendas do sistema
+    public List<EncomendaResponseDTO> listarTodas() {
+        return encomendaRepository.findAll()
+            .stream()
+            .sorted((e1, e2) -> e2.getDataPedido().compareTo(e1.getDataPedido())) // Mais recentes primeiro
+            .map(this::converterParaEncomendaResponse).toList();
+    }
+
+    // NOVA FUNÇÃO: Admin altera status para ENVIADO
+    public EncomendaResponseDTO adminAlterarStatus(Long encomendaId, StatusEncomenda novoStatus) {
+        Encomenda e = encomendaRepository.findById(encomendaId)
+                .orElseThrow(() -> new RuntimeException("Encomenda não encontrada"));
+        
+        if (novoStatus == StatusEncomenda.ENTREGUE) {
+            throw new RuntimeException("Apenas o cliente pode confirmar a entrega final.");
+        }
+        
+        e.setStatus(novoStatus);
+        return converterParaEncomendaResponse(encomendaRepository.save(e));
+    }
+
+    // NOVA FUNÇÃO: Cliente confirma entrega
+    public EncomendaResponseDTO clienteConfirmarEntrega(Long encomendaId, Usuario usuario) {
+        Encomenda e = encomendaRepository.findById(encomendaId)
+                .orElseThrow(() -> new RuntimeException("Encomenda não encontrada"));
+        
+        if (!e.getUsuario().getId().equals(usuario.getId())) {
+            throw new RuntimeException("Você só pode confirmar suas próprias encomendas.");
+        }
+        
+        e.setStatus(StatusEncomenda.ENTREGUE);
+        return converterParaEncomendaResponse(encomendaRepository.save(e));
+    }
+
+    private EncomendaResponseDTO converterParaEncomendaResponse(Encomenda e) {
+        return new EncomendaResponseDTO(
+            e.getId(),
+            e.getBrinquedo().getNome(),
+            e.getBrinquedo().getCategoria(),
+            e.getPrecoNaData(),
+            e.getDataPedido(),
+            e.getStatus().name()
+        );
+    }
+
     public BrinquedoResponseDTO reporEstoque(Long id, Integer novaQuantidade) {
         Brinquedo brinquedo = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Brinquedo não encontrado"));
 
-        // Soma a nova quantidade ao que já existe
         brinquedo.setQuantidade(brinquedo.getQuantidade() + novaQuantidade);
 
         return converterParaResponse(repository.save(brinquedo));
     }
 
-	
-	 /* Busca de Destaques (Os 3 mais vendidos) o método está na classe BrinquedoRepository,
-	 * mas aqui no Service a gente chama o método existente do jpa e converte para DTO de resposta*/
     public List<BrinquedoResponseDTO> listarDestaques() {
         return repository.findTop3ByOrderByVendasDesc()
                 .stream().map(this::converterParaResponse).toList();
     }
-        
 }

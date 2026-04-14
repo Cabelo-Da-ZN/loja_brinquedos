@@ -10,6 +10,10 @@ public interface BrinquedoRepository extends JpaRepository<Brinquedo, Long> {
     // Busca por parte do nome
     List<Brinquedo> findByNomeContainingIgnoreCase(String nome);
 
+    // BUSCA INTELIGENTE: Pesquisa o termo no nome, na categoria OU na descrição
+    List<Brinquedo> findByNomeContainingIgnoreCaseOrCategoriaContainingIgnoreCaseOrDescricaoContainingIgnoreCase(
+            String nome, String categoria, String descricao);
+
     // Busca por categoria exata
     List<Brinquedo> findByCategoria(String categoria);
 

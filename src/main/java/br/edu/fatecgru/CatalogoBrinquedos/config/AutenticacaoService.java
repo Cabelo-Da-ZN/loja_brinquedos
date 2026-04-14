@@ -19,12 +19,14 @@ public class AutenticacaoService implements UserDetailsService {
     public UserDetails loadUserByUsername(String login) throws UsernameNotFoundException {
         // Busca o usuário no seu banco pelo login
         Usuario usuario = repository.findByLogin(login)
-            .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado: " + login));
+            .filter(Usuario::isAtivo)
+            .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado ou inativo: " + login));
 
         // Converte o seu Usuario do banco para o UserDetails que o Spring entende
         return org.springframework.security.core.userdetails.User.builder()
             .username(usuario.getLogin())
             .password(usuario.getSenha())
+            .disabled(!usuario.isAtivo()) // Opcional, mas redundante com o filter acima
             .roles(usuario.getPerfil().name().replace("ROLE_", "")) // Converte ROLE_ADMIN para ADMIN
             .build();
     }

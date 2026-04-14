@@ -15,14 +15,30 @@ public class Usuario {
     @Column(nullable = false) // A senha não pode ser nula
     private String senha;
 
+    private String nome;
+
+    @Column(unique = true)
+    private String cpf;
+
+    @Column(unique = true, nullable = false)
+    private String email;
+
+    private String endereco;
+
     @Enumerated(EnumType.STRING) // Armazena o perfil como string no banco (ex: "ROLE_ADMIN", "ROLE_USER")
     private Perfil perfil;
 
+    private boolean ativo = true;
+
     public Usuario() {} // Construtor padrão necessário para JPA
 
-    public Usuario(String login, String senha, Perfil perfil) { // Construtor para facilitar a criação de usuários
+    public Usuario(String login, String senha, String nome, String cpf, String email, String endereco, Perfil perfil) {
         this.login = login;
         this.senha = senha;
+        this.nome = nome;
+        this.cpf = cpf;
+        this.email = email;
+        this.endereco = endereco;
         this.perfil = perfil;
     }
 
@@ -50,6 +66,38 @@ public class Usuario {
 		this.senha = senha;
 	}
 
+	public String getNome() {
+		return nome;
+	}
+
+	public void setNome(String nome) {
+		this.nome = nome;
+	}
+
+	public String getCpf() {
+		return cpf;
+	}
+
+	public void setCpf(String cpf) {
+		this.cpf = cpf;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+	public String getEndereco() {
+		return endereco;
+	}
+
+	public void setEndereco(String endereco) {
+		this.endereco = endereco;
+	}
+
 	public Perfil getPerfil() {
 		return perfil;
 	}
@@ -57,6 +105,14 @@ public class Usuario {
 	public void setPerfil(Perfil perfil) {
 		this.perfil = perfil;
 	}
+
+    public boolean isAtivo() {
+        return ativo;
+    }
+
+    public void setAtivo(boolean ativo) {
+        this.ativo = ativo;
+    }
 
     
 }
